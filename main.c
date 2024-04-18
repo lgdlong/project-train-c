@@ -15,7 +15,8 @@ void add_product(struct product prod) {
 }
 
 int main() {
-    printf("hello world!");
-    printf("chao moi nguoi minh ten la Long");
+    printf("hello world!\n");
+    printf("chao moi nguoi minh ten la Long\n");
+    printf("Minh la K19");
     return 0;
 }
