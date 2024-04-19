@@ -11,7 +11,7 @@ struct product {
 };
 
 struct Order {
-    Product products;
+    struct product products;
     int num_products;
     float total_price;
     char buyer_name;
@@ -22,7 +22,7 @@ struct Order {
 };
 
 struct Cart {
-    Product products;
+    struct product products;
     int num_products;
     float total_price;
     char customer_id;
@@ -32,12 +32,13 @@ void add_product(struct product prod) {
 
 }
 
+void menu(){
+    while (true) {
+        
+    }
+}
+
 int main() {
-	int a = 5, b = 10;
-    printf("hello world!\n");
-    printf("chao moi nguoi minh ten la Long\n");
-    printf("Minh la K19\n");
-    int sum = a + b;
-    printf("Sum a + b = %d", sum);
+
     return 0;
 }
