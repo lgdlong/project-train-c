@@ -10,6 +10,24 @@ struct product {
     double price;
 };
 
+struct Order {
+    Product products;
+    int num_products;
+    float total_price;
+    char buyer_name;
+    char address;
+    char phone;
+    char payment_method;
+    char payment_status;
+};
+
+struct Cart {
+    Product products;
+    int num_products;
+    float total_price;
+    char customer_id;
+};
+
 void add_product(struct product prod) {
 
 }
