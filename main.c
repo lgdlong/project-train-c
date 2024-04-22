@@ -27,7 +27,8 @@ void displayProducts(struct Product *products, int product_count) {
     printf("\nSan pham:\n");
     int i;
     for (i = 0; i < product_count; i++) {
-        printf("So: %d | ", i);
+    	int j=i+1;
+        printf("So: %d | ", j);
         printf("Ten san pham: %s | ", products[i].productName);
         printf("So luong: %d | ", products[i].quantity);
         printf("Gia: %.3lf | ", products[i].price);
@@ -40,18 +41,20 @@ void fixProducts(struct Product *products, int product_count){
 	printf("Nhap so cua san pham muon thay doi: ");
 	scanf("%d", &i);
 	
-	if(i>=0 && i< product_count)
+	int j=i-1;
+	
+	if(j>0 && i<= product_count)
 	{
 	printf("Nhap ten moi cho san pham: ");
 	getchar();
-        fgets(products[i].productName, sizeof(products[i].productName), stdin);
-        products[i].productName[strcspn(products[i].productName, "\n")] = '\0';
+        fgets(products[j].productName, sizeof(products[j].productName), stdin);
+        products[j].productName[strcspn(products[j].productName, "\n")] = '\0';
 
         printf("Nhap so luong moi: ");
-        scanf("%d", &products[i].quantity);
+        scanf("%d", &products[j].quantity);
 
         printf("Nhap gia moi: ");
-        scanf("%f", &products[i].price);
+        scanf("%lf", &products[j].price);
 
         printf("Thong tin san pham da cap nhat thanh cong!\n");
     } else {
