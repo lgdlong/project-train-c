@@ -1,125 +1,153 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <conio.h>
+#include <stdlib.h> 
 
+#define MAX_PRODUCTS 50
 
-struct product {
+struct Product {
     char productName[50];
     int quantity;
     double price;
 };
 
-struct Order {
-    struct product products;
-    int num_products;
-    float total_price;
-    char buyer_name;
-    char address;
-    char phone;
-    char payment_method;
-    char payment_status;
-};
-
 struct Cart {
-    struct product products;
+    struct Product products[MAX_PRODUCTS];
     int num_products;
     float total_price;
     char customer_id;
 };
 
-void work_with_cart() { // Tạo menu làm việc với giỏ hàng
+void create_cart(struct Cart *cart) { // Hàm tạo giỏ hàng
+    cart->num_products = 0;
+    cart->total_price = 0;
+    printf("Giỏ hàng đã được tạo!\n");
+}
+
+void add_to_cart(struct Product *products, struct Cart *cart, int product_count) { // Hàm thêm sản phẩm vào giỏ hàng
+    displayProducts();
+    char name_of_product[50];
+    int quantity;
+    printf("Nhập tên sản phẩm muốn thêm: ");
+    scanf("%s", name_of_product);
+
+    for (int i = 0; i < product_count; i++) {
+        if (strcmp(products[i].productName, name_of_product) == 0) {
+            printf("Nhập số lượng: ");
+            scanf("%d", &quantity);
+            if (quantity > products[i].quantity) {
+                printf("Số lượng không đủ trong kho!\n");
+                return;
+            }
+            cart->products[cart->num_products] = products[i];
+            cart->products[cart->num_products].quantity = quantity;
+            cart->total_price += products[i].price * quantity;
+            cart->num_products++;
+            products[i].quantity -= quantity;
+            printf("Sản phẩm đã được thêm vào giỏ hàng!\n");
+            return;
+        }
+    }
+    printf("Không tìm thấy sản phẩm trong danh sách!\n");
+}
+
+void delete_from_cart(struct Product *products, struct Cart *cart, int product_count) { // Hàm xóa sản phẩm từ giỏ hàng
+    if (cart->num_products == 0) {
+        printf("Giỏ hàng trống!\n");
+        return;
+    }
+
+    displayProducts();
+    char name_of_product[50];
+    int quantity;
+    printf("Nhập tên sản phẩm muốn xóa: ");
+    scanf("%s", name_of_product);
+
+    for (int i = 0; i < cart->num_products; i++) {
+        if (strcmp(cart->products[i].productName, name_of_product) == 0) {
+            printf("Nhập số lượng: ");
+            scanf("%d", &quantity);
+            if (quantity > cart->products[i].quantity) {
+                printf("Số lượng nhập vào lớn hơn số lượng trong giỏ hàng!\n");
+                return;
+            }
+            cart->total_price -= cart->products[i].price * quantity;
+            products[i].quantity += quantity;
+
+            for (int j = i; j < cart->num_products - 1; j++) {
+                cart->products[j] = cart->products[j + 1];
+            }
+            cart->num_products--;
+            printf("Sản phẩm đã được xóa khỏi giỏ hàng!\n");
+            return;
+        }
+    }
+    printf("Không tìm thấy sản phẩm trong giỏ hàng!\n");
+}
+
+void modify_cart(struct Product *products, struct Cart *cart, int product_count) { // Hàm chỉnh sửa giỏ hàng
     int choice;
     do {
-    printf("Vui lòng chọn!");
-    printf("1. Tạo giỏ hàng");
-    printf("2. Thêm giỏ hàng");
-    printf("3. Xóa giỏ hàng");
-    printf("4. Sửa giỏ hàng");
-    printf("5. Hoàn tất mua sắm và thanh toán");
-    scanf("%d",&choice);
-    switch (choice) {
+        printf("\n1. Thêm sản phẩm\n");
+        printf("2. Xóa sản phẩm\n");
+        printf("3. Hoàn tất chỉnh sửa\n");
+        printf("Nhập lựa chọn: ");
+        scanf("%d", &choice);
+        switch (choice) {
             case 1:
-                create_cart(&cart);
+                add_to_cart(products, cart, product_count);
                 break;
             case 2:
-                add_to_cart(&cart);
+                delete_from_cart(products, cart, product_count);
                 break;
             case 3:
-                delete_from_cart(&cart);
+                return;
+            default:
+                printf("Lựa chọn không hợp lệ!\n");
+        }
+    } while (true);
+}
+
+void checkout(struct Cart *cart) { // Hàm thanh toán
+    printf("\n======== Vui lòng điền thông tin khách hàng ========");
+    printf("\nTên: ");
+    printf("\nĐịa chỉ: ");
+    printf("\nHình thức thanh toán: ");
+}
+
+void work_with_cart(struct Product *products, struct Cart *cart, int product_count) { // Hàm làm việc với giỏ hàng
+    int choice;
+    do {
+        printf("\n======== MENU ========");
+        printf("\n1. Tạo giỏ hàng");
+        printf("\n2. Thêm sản phẩm vào giỏ hàng");
+        printf("\n3. Xóa sản phẩm khỏi giỏ hàng");
+        printf("\n4. Chỉnh sửa giỏ hàng");
+        printf("\n5. Hoàn tất mua sắm và thanh toán");
+        printf("\n0. Thoát");
+        printf("\nNhập lựa chọn: ");
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                create_cart(cart);
+                break;
+            case 2:
+                add_to_cart(products, cart, product_count);
+                break;
+            case 3:
+                delete_from_cart(products, cart, product_count);
                 break;
             case 4:
-                modify_cart(&cart);
+                modify_cart(products, cart, product_count);
                 break;
             case 5:
-                checkout(&cart);
+                checkout(cart);
                 break;
             case 0:
-                exit(0);
+                printf("Cảm ơn bạn đã sử dụng dịch vụ!\n");
                 break;
             default:
                 printf("Lựa chọn không hợp lệ!\n");
         }
     } while (choice != 0);
-}
-
-
-void create_cart(struct Cart *cart) { // Hàm tạo giỏ hàng
-    cart->num_products = 0; // Init 2 phần tử ban đầu bằng 0
-    cart->total_price = 0;
-    printf("Giỏ hàng đã được tạo!");
-}
-
-void add_to_cart(struct pro, struct Cart *cart) { // Hàm thêm sản phẩm vào giỏ hàng
-    int amount;
-    if (cart -> num_products == 0) {
-        printf("Chưa có sản phẩm nào! ");
-    }
-    while (true) {
-        products_list();
-        printf("Nhập tên sản phẩm muốn thêm: ");
-        scanf("%d", )
-        printf("Nhập số lượng: ");
-        scanf("%d", &amount);
-        
-        printf("Nhập mã sản phẩm: ");
-
-    }
-}
-
-void delete_from_cart(struct Cart *cart) { // Hàm xóa sản phẩm từ giỏ hàng
-    int msp;
-    while (cart -> num_products > 0) {
-        products_list();
-        printf("Nhập mã sản phẩm muốn xóa: ");
-
-    }
-
-}
-
-void modify_cart(struct *cart) { // Hàm chỉnh sửa giỏ hàng (Hàm này bao gồm hai hàm xóa và thêm sản phẩm vào giỏ hàng)
-    int choice;
-    do {
-        printf("1. Thêm sản phẩm");
-        printf("2. Xóa sản phẩm");
-        printf("3. Hoàn tất chỉnh sửa");
-        scanf("%d",&choice);
-        switch (choice) {
-            case 1:
-                add_to_cart();
-                break;
-            case 2:
-                delete_from_cart();
-                break;
-            case 3:
-                exit(0);
-            default:
-                printf("Lựa chọn không hợp lệ!\n");
-        }
-    } while (1);
-}
-
-int main() {
-
-    return 0;
 }
