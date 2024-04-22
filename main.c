@@ -27,7 +27,7 @@ void displayProducts(struct Product *products, int product_count) {
     printf("\nSan pham:\n");
     int i;
     for (i = 0; i < product_count; i++) {
-        printf("So: %d\n", i);
+        printf("So: %d\n", i+1);
         printf("Ten san pham: %s\n", products[i].productName);
         printf("So luong: %d\n", products[i].quantity);
         printf("Gia: %.2lf\n\n", products[i].price);

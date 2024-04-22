@@ -13,7 +13,7 @@ void addProduct(struct Product *products, int *product_count) {
     printf("Nhap ten san pham: ");
     getchar(); 
     fgets(products[*product_count].productName, sizeof(products[*product_count].productName), stdin);
-    products[*product_count].productName[strcspn(products[*product_count].productName, "\n")] = '\0'; // Lo?i b? ký t? newline
+    products[*product_count].productName[strcspn(products[*product_count].productName, "\n")] = '\0'; // Lo?i b? kï¿½ t? newline
 
     printf("Nhap so luong: ");
     scanf("%d", &products[*product_count].quantity);
