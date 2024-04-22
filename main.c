@@ -38,12 +38,13 @@ void displayProducts(struct Product *products, int product_count) {
 
 void fixProducts(struct Product *products, int product_count){
 	int i;
+	displayProducts(products, product_count);
 	printf("Nhap so cua san pham muon thay doi: ");
 	scanf("%d", &i);
 	
 	int j=i-1;
 	
-	if(j>0 && i<= product_count)
+	if(j>=0 && j< product_count)
 	{
 	printf("Nhap ten moi cho san pham: ");
 	getchar();
