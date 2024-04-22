@@ -27,10 +27,35 @@ void displayProducts(struct Product *products, int product_count) {
     printf("\nSan pham:\n");
     int i;
     for (i = 0; i < product_count; i++) {
-        printf("So: %d\n", i);
-        printf("Ten san pham: %s\n", products[i].productName);
-        printf("So luong: %d\n", products[i].quantity);
-        printf("Gia: %.2lf\n\n", products[i].price);
+        printf("So: %d | ", i);
+        printf("Ten san pham: %s | ", products[i].productName);
+        printf("So luong: %d | ", products[i].quantity);
+        printf("Gia: %.3lf | ", products[i].price);
+        printf("\n");
+    }
+}
+
+void fixProducts(struct Product *products, int product_count){
+	int i;
+	printf("Nhap so cua san pham muon thay doi: ");
+	scanf("%d", &i);
+	
+	if(i>=0 && i< product_count)
+	{
+	printf("Nhap ten moi cho san pham: ");
+	getchar();
+        fgets(products[i].productName, sizeof(products[i].productName), stdin);
+        products[i].productName[strcspn(products[i].productName, "\n")] = '\0';
+
+        printf("Nhap so luong moi: ");
+        scanf("%d", &products[i].quantity);
+
+        printf("Nhap gia moi: ");
+        scanf("%f", &products[i].price);
+
+        printf("Thong tin san pham da cap nhat thanh cong!\n");
+    } else {
+        printf("So nay khong phu hop!\n");
     }
 }
 
@@ -42,7 +67,8 @@ int main() {
     do {
         printf("\n1. Them san pham\n");
         printf("2. Hien thi danh sach san pham\n");
-        printf("3. Thoat\n");
+        printf("3. Chinh sua san pham da them\n");
+        printf("4. Thoat\n");
         printf("Nhap lua chon cua ban: ");
         scanf("%d", &choice);
 
@@ -54,12 +80,15 @@ int main() {
                 displayProducts(products, product_count);
                 break;
             case 3:
-                printf("Ket thuc chuong trinh.\n");
+                fixProducts(products, product_count);
                 break;
+            case 4:
+            	printf("Ket thuc chuong trinh.\n");
+            	break;
             default:
                 printf("Lua chon khong hop le! Vui long chon lai.\n");
         }
-    } while(choice != 3);
+    } while(choice != 4);
 
     return 0;
 }
