@@ -2,13 +2,13 @@
 #include <stdbool.h>
 #include <string.h>
 
-struct Product {
+struct product {
     char productName[50];
     int quantity;
     double price;
 };
 
-void addProduct(struct Product *products, int *product_count) {
+void addProduct(struct product *products, int *product_count) {
     printf("Nhap ten san pham: ");
     getchar(); 
     fgets(products[*product_count].productName, sizeof(products[*product_count].productName), stdin);
@@ -23,7 +23,7 @@ void addProduct(struct Product *products, int *product_count) {
     (*product_count)++;
 }
 
-void displayProducts(struct Product *products, int product_count) {
+void displayProducts(struct product *products, int product_count) {
     printf("\nSan pham:\n");
     int i;
     for (i = 0; i < product_count; i++) {
@@ -36,7 +36,7 @@ void displayProducts(struct Product *products, int product_count) {
     }
 }
 
-void fixProducts(struct Product *products, int product_count){
+void fixProducts(struct product *products, int product_count){
 	int i;
 	displayProducts(products, product_count);
 	printf("Nhap so cua san pham muon thay doi: ");
@@ -63,7 +63,7 @@ void fixProducts(struct Product *products, int product_count){
     }
 }
 
-void deleteProducts(struct Product *products, int *product_count){
+void deleteProducts(struct product *products, int *product_count){
 	int index;
 	displayProducts(products, *product_count);
 	printf("Nhap so cua san pham muon xoa: ");
@@ -72,7 +72,7 @@ void deleteProducts(struct Product *products, int *product_count){
 	int j = index-1;
 	if(j>=0 && j< *product_count){
 		int i;
-		for (i=0; i<*product_count-1; i++){
+		for (i=0; i< *product_count-1; i++){
 			products[i] = products[i + 1];
         }
         (*product_count)--;	
@@ -84,11 +84,11 @@ void deleteProducts(struct Product *products, int *product_count){
 }
 
 int main() {
-    struct Product products[50];
+	struct product products[50];
     int product_count = 0;
     int choice;
 
-    do {
+     do {
         printf("\n1. Them san pham\n");
         printf("2. Hien thi danh sach san pham\n");
         printf("3. Chinh sua san pham da them\n");
@@ -96,7 +96,6 @@ int main() {
         printf("5. Thoat chuong trinh\n");
         printf("Nhap lua chon cua ban: ");
         scanf("%d", &choice);
-
         switch(choice) {
             case 1:
                 addProduct(products, &product_count);
