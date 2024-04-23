@@ -2,13 +2,31 @@
 #include <stdbool.h>
 #include <string.h>
 
-struct Product {
+struct product {
     char productName[50];
     int quantity;
     double price;
 };
 
-void addProduct(struct Product *products, int *product_count) {
+struct Order {
+    struct product products;
+    int num_products;
+    float total_price;
+    char buyer_name;
+    char address;
+    char phone;
+    char payment_method;
+    char payment_status;
+};
+
+struct Cart {
+    struct product products;
+    int num_products;
+    float total_price;
+    char customer_id;
+};
+
+void addProduct(struct product *products, int *product_count) {
     printf("Nhap ten san pham: ");
     getchar(); 
     fgets(products[*product_count].productName, sizeof(products[*product_count].productName), stdin);
@@ -23,7 +41,7 @@ void addProduct(struct Product *products, int *product_count) {
     (*product_count)++;
 }
 
-void displayProducts(struct Product *products, int product_count) {
+void displayProducts(struct product *products, int product_count) {
     printf("\nSan pham:\n");
     int i;
     for (i = 0; i < product_count; i++) {
@@ -36,7 +54,7 @@ void displayProducts(struct Product *products, int product_count) {
     }
 }
 
-void fixProducts(struct Product *products, int product_count){
+void fixProducts(struct product *products, int product_count){
 	int i;
 	displayProducts(products, product_count);
 	printf("Nhap so cua san pham muon thay doi: ");
@@ -63,37 +81,9 @@ void fixProducts(struct Product *products, int product_count){
     }
 }
 
+
 int main() {
-    struct Product products[50];
-    int product_count = 0;
-    int choice;
-
-    do {
-        printf("\n1. Them san pham\n");
-        printf("2. Hien thi danh sach san pham\n");
-        printf("3. Chinh sua san pham da them\n");
-        printf("4. Thoat\n");
-        printf("Nhap lua chon cua ban: ");
-        scanf("%d", &choice);
-
-        switch(choice) {
-            case 1:
-                addProduct(products, &product_count);
-                break;
-            case 2:
-                displayProducts(products, product_count);
-                break;
-            case 3:
-                fixProducts(products, product_count);
-                break;
-            case 4:
-            	printf("Ket thuc chuong trinh.\n");
-            	break;
-            default:
-                printf("Lua chon khong hop le! Vui long chon lai.\n");
-        }
-    } while(choice != 4);
-
+	
     return 0;
 }
 
