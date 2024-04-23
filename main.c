@@ -63,6 +63,26 @@ void fixProducts(struct Product *products, int product_count){
     }
 }
 
+void deleteProducts(struct Product *products, int *product_count){
+	int index;
+	displayProducts(products, *product_count);
+	printf("Nhap so cua san pham muon xoa: ");
+	scanf("%d", &index);
+	
+	int j = index-1;
+	if(j>=0 && j< *product_count){
+		int i;
+		for (i=0; i<*product_count-1; i++){
+			products[i] = products[i + 1];
+        }
+        (*product_count)--;	
+        printf("Xoa san pham thanh cong!");
+		}
+	else{
+		printf("Lua chon khong hop le! Vui long chon lai");
+	}	
+}
+
 int main() {
     struct Product products[50];
     int product_count = 0;
@@ -72,7 +92,8 @@ int main() {
         printf("\n1. Them san pham\n");
         printf("2. Hien thi danh sach san pham\n");
         printf("3. Chinh sua san pham da them\n");
-        printf("4. Thoat\n");
+        printf("4. Xoa san pham da them\n");
+        printf("5. Thoat chuong trinh\n");
         printf("Nhap lua chon cua ban: ");
         scanf("%d", &choice);
 
@@ -87,12 +108,15 @@ int main() {
                 fixProducts(products, product_count);
                 break;
             case 4:
+            	deleteProducts(products, &product_count);
+            	break;
+            case 5:
             	printf("Ket thuc chuong trinh.\n");
             	break;
             default:
                 printf("Lua chon khong hop le! Vui long chon lai.\n");
         }
-    } while(choice != 4);
+    } while(choice != 5);
 
     return 0;
 }
