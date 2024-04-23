@@ -206,11 +206,7 @@ void work_with_cart(struct product *products, struct cart *cart, int product_cou
     } while (choice != 0);
 }
 
-int main() {
-	struct product products[50];
-    int product_count = 0;
-    struct cart cart;
-
+void work_with_produts(struct product *products, struct cart *cart, int product_count) {
     int choice;
     do {
         printf("\n======== MENU ========");
@@ -232,7 +228,7 @@ int main() {
                 fixProducts(products, product_count);
                 break;
             case 4:
-                work_with_cart(products, &cart, product_count);
+                work_with_cart(products, &*cart, product_count);
                 break;
             case 0:
                 printf("Ket thuc chuong trinh.\n");
@@ -241,6 +237,14 @@ int main() {
                 printf("Lua chon khong hop le! Vui long chon lai.\n");
         }
     } while(choice != 0);
+}
+
+int main() {
+	struct product products[50];
+    struct cart cart;
+    int product_count = 0;
+
+    work_with_produts(products, &cart, product_count);
     
     return 0;
 }
