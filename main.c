@@ -51,7 +51,7 @@ struct order {
 };
 
 struct cart {
-    struct product products;
+    struct product products[MAX_PRODUCTS];
     int num_products;
     float total_price;
     char customer_id;
@@ -60,11 +60,7 @@ struct cart {
 void menu() {
     int maxproducts = 50;
 
-    int choice; // menu mẹ
-    // int choice1; // menu con cấp 1
-    // int choice2; // menu con cấp 2
-    
-    int n; // số lượng sản phẩm trong 
+    int choice;
     
     struct order *ord = (struct order *)malloc(maxproducts * sizeof(struct order));
 
