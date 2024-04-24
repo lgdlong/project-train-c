@@ -9,6 +9,7 @@ struct Product {
     char productName[50];
     int quantity;
     double price;
+    int code;
 };
 
 struct Cart {
@@ -16,6 +17,7 @@ struct Cart {
     int num_products;
     float total_price;
     char customer_id;
+    int payment_status;
 };
 
 void readProductsFromFile(struct Product *products, int *product_count) { // Hàm đọc sản phẩm của Trân
