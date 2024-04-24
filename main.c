@@ -115,6 +115,18 @@ void checkout(struct Cart *cart) { // Hàm thanh toán
     printf("\nHình thức thanh toán: ");
 }
 
+
+
+void display_cart(struct Cart *cart) {
+    /*
+    Cái này của Long thêm vào
+    */
+    for (int i = 0; i < sizeof(cart); i++) {
+        printf("%s\n", cart[i].products->productName);
+    }
+}
+
+
 void work_with_cart(struct Product *products, struct Cart *cart, int product_count) { // Hàm làm việc với giỏ hàng
     int choice;
     do {
