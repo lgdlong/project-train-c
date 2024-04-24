@@ -40,13 +40,13 @@ struct product {
 };
 
 struct order {
-    struct product products;
+    struct product products[MAX_PRODUCTS];
     int num_products;
     float total_price;
-    char buyer_name;
-    char address;
-    char phone;
-    char payment_method;
+    char customer_name[50];
+    char address[50];
+    char phone[50];
+    char payment_method[50];
     char payment_status;
 };
 
@@ -57,109 +57,42 @@ struct cart {
     char customer_id;
 };
 
-void menu() {
-    int maxproducts = 50;
 
-    int choice;
-    
-    struct order *ord = (struct order *)malloc(maxproducts * sizeof(struct order));
+void customer_inf(struct order *orders) {
+    printf("\n======== Vui long dien thong tin khach hang ========");
 
-    do {
-        ds_1();
-        lua_chon(&choice);
+    printf("\nTen: ");
+    fgets(orders->customer_name, sizeof(orders->customer_name), stdin);
+    orders->customer_name[strcspn(orders->customer_name, "\n")] = '\0';
 
-        switch (choice) {
-            case 1: // Làm việc với sản phẩm
-                work_with_san_pham();
-                break;
-            case 2: // Giỏ hàng: thêm, xóa, sửa số lượng
-                work_with_gio_hang();
-                break;
-            case 3:
-            // Đơn mua: thông tin cá nhân, xuất đơn mua
-/*
-- bản chất giỏ hàng là một kho lưu tạm dữ liệu đơn hàng trước khi chọn mua
-- đơn mua xuất hiện sau khi đã có giỏ hàng
-- thông tin về địa chỉ và số điện thoại được lưu ở bên
+    printf("\nDia chi: ");
+    fgets(orders->address, sizeof(orders->address), stdin);
+    orders->address[strcspn(orders->address, "\n")] = '\0';
 
-Thêm, hủy, sửa đơn mua (đơn hàng):
+    printf("\nHinh thuc thanh toan: \n");
+    printf("\t1. Chuyen phat thanh thu ho (COD)\n");
+    printf("\t2. Vi dien tu\n");
+    printf("\t3. The tin dung/the ghi no\n");
 
-    Thêm một đơn mua
-        Chọn số thứ tự
-        Thêm món đó từ giỏ hàng vào container đơn mua
-    Hủy một đơn mua (vì một lí do nào đó)
-        Chọn số thứ tự
-        Xóa dữ liệu của đơn mua ĐÃ THÊM từ trước
-    Sửa đơn mua
-        Sửa lại địa chỉ nhận hàng
+    printf("\tMoi chon so thu tu hinh thuc thanh toan: ");
 
-
-Khi mình truy cứu một đơn mua thì in ra danh sách gồm có:
-    Tên
-    Số lượng sản phẩm
-    Giá đơn, giá tổng
-    Id, địa chỉ, Sđt
-    Hình thức thanh toán
-    Trạng thái thanh toán
-*/
-
-                // BẮT ĐẦU CODE
-                int num, choice1;
-                printf("1. Them don mua\n");
-                printf("2. Xoa don mua\n");
-                printf("3. Sua don mua\n");
-                printf("4. Quay ve danh sach lua chon truoc do\n");
-                printf("\n");
-
-                lua_chon(&choice1);
-
-                do {
-                    switch (choice1) {
-                        case 1:
-                            // --> in ra giỏ hàng
-
-                            // lấy num xong check qua giỏ hàng
-                            printf("Moi nhap so thu tu cua san pham can them trong gio hang: ");
-                            scanf("%d", num);
-                            printf("\n");
-
-                            // thêm product đã check bằng num vào trong container
-                        
-                        case 2:
-                            // chọn product từ trong container
-                            printf("Moi nhap so thu tu cua san pham can xoa: ");
-                            scanf("%d", num);
-                            printf("\n");
-
-                            // xóa product
-                        
-                        case 3:
-                            // chọn product từ trong container
-                            printf("Moi nhap so thu tu cua san pham can sua: ");
-                            scanf("%d", num);
-                            printf("\n");
-
-                            // chỉnh sửa địa chỉ nhận hàng
-                        
-                        case 4:
-                            break;
-
-                        default:
-                            printf("Invalid choice!\n");
-                    }
-                }
-                while (choice1 != 4);
-                break;
-
-            case 4:
-                return;
-            
-            default:
-                printf("Invalid choice!\n");
-
-        }
-    } while (choice != 4);
+    int payment_method_choice;
+    switch (payment_method_choice) {
+    case 1:
+        strcpy(orders->payment_method, "COD");
+        break;
+    case 2:
+        strcpy(orders->payment_method, "Vi dien tu");
+        break;
+    case 3:
+        strcpy(orders->payment_method, "The tin dung/ghi no");
+        break;
+    default:
+        printf("Lua chon khong hop le!\n");
+        break;
+    }
 }
+
 
 void addProduct(struct product *products, int *product_count) {
     printf("Nhap ten san pham: ");
@@ -197,10 +130,13 @@ void create_cart(struct cart *cart) { // Hàm tạo giỏ hàng
 
 void add_to_cart(struct product *products, struct cart *cart, int product_count) { // Hàm thêm sản phẩm vào giỏ hàng
     displayProducts(products, product_count);
+
     char name_of_product[50];
     int quantity;
+
     printf("Nhap ten san pham muon them: ");
-    scanf("%s", name_of_product);
+    fgets(name_of_product, sizeof(name_of_product), stdin);
+    name_of_product[strcspn(name_of_product, "\n")] = '\0';
 
     for (int i = 0; i < product_count; i++) {
         if (strcmp(products[i].productName, name_of_product) == 0) {
@@ -306,14 +242,86 @@ void modify_cart(struct product *products, struct cart *cart, int product_count)
     } while (true);
 }
 
-void checkout(struct cart *cart) { // Hàm thanh toán
-    printf("\n======== Vui long dien thong tin khach hang ========");
-    printf("\nTen: ");
-    printf("\nDia chi: ");
-    printf("\nHinh thuc thanh toan: ");
+void work_with_order(struct product *products, struct cart *cart, struct order *orders, int product_count) {
+/*
+Đơn mua: thông tin cá nhân, xuất đơn mua
+- bản chất giỏ hàng là một kho lưu tạm dữ liệu đơn hàng trước khi chọn mua
+- đơn mua xuất hiện sau khi đã có giỏ hàng
+- thông tin về địa chỉ và số điện thoại được lưu ở bên
+
+Thêm, hủy, sửa đơn mua (đơn hàng):
+
+    Thêm một đơn mua
+        Chọn số thứ tự
+        Thêm món đó từ giỏ hàng vào container đơn mua
+    Hủy một đơn mua (vì một lí do nào đó)
+        Chọn số thứ tự
+        Xóa dữ liệu của đơn mua ĐÃ THÊM từ trước
+    Sửa đơn mua
+        Sửa lại địa chỉ nhận hàng
+
+
+Khi mình truy cứu một đơn mua thì in ra danh sách gồm có:
+    Tên
+    Số lượng sản phẩm
+    Giá đơn, giá tổng
+    Id, địa chỉ, Sđt
+    Hình thức thanh toán
+    Trạng thái thanh toán
+*/
+
+    // BẮT ĐẦU CODE
+
+    customer_inf(&orders);
+
+    int num, choice1;
+    printf("1. Them don mua\n");
+    printf("2. Xoa don mua\n");
+    printf("3. Sua don mua\n");
+    printf("4. Quay ve danh sach lua chon truoc do\n");
+    printf("\n");
+
+    lua_chon(&choice1);
+
+    do {
+        switch (choice1) {
+            case 1:
+                // --> in ra giỏ hàng
+
+                // lấy num xong check qua giỏ hàng
+                printf("Moi nhap so thu tu cua san pham can them trong gio hang: ");
+                scanf("%d", num);
+                printf("\n");
+
+                // thêm product đã check bằng num vào trong container
+            
+            case 2:
+                // chọn product từ trong container
+                printf("Moi nhap so thu tu cua san pham can xoa: ");
+                scanf("%d", num);
+                printf("\n");
+
+                // xóa product
+            
+            case 3:
+                // chọn product từ trong container
+                printf("Moi nhap so thu tu cua san pham can sua: ");
+                scanf("%d", num);
+                printf("\n");
+
+                // chỉnh sửa địa chỉ nhận hàng
+            
+            case 4:
+                break;
+
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+    while (choice1 != 4);
 }
 
-void work_with_cart(struct product *products, struct cart *cart, int product_count) { // Hàm làm việc với giỏ hàng
+void work_with_cart(struct product *products, struct cart *cart, struct order *orders, int product_count) { // Hàm làm việc với giỏ hàng
     int choice;
     do {
         printf("\n======== MENU ========");
@@ -339,7 +347,7 @@ void work_with_cart(struct product *products, struct cart *cart, int product_cou
                 modify_cart(products, cart, product_count);
                 break;
             case 5:
-                checkout(cart);
+                work_with_order(products, cart, orders, product_count);
                 break;
             case 0:
                 printf("Cam on ban da su dung dich vu!\n");
@@ -350,7 +358,7 @@ void work_with_cart(struct product *products, struct cart *cart, int product_cou
     } while (choice != 0);
 }
 
-void work_with_produts(struct product *products, struct cart *cart, int product_count) {
+void work_with_produts(struct product *products, struct cart *cart, struct order *orders, int *product_count) {
     int choice;
     do {
         printf("\n======== MENU ========");
@@ -363,16 +371,16 @@ void work_with_produts(struct product *products, struct cart *cart, int product_
         scanf("%d", &choice);
         switch (choice) {
             case 1:
-                addProduct(products, &product_count);
+                addProduct(products, &*product_count);
                 break;
             case 2:
-                displayProducts(products, product_count);
+                displayProducts(products, *product_count);
                 break;
             case 3:
-                fixProducts(products, product_count);
+                fixProducts(products, *product_count);
                 break;
             case 4:
-                work_with_cart(products, &*cart, product_count);
+                work_with_cart(products, &cart, orders, *product_count);
                 break;
             case 0:
                 printf("Ket thuc chuong trinh.\n");
@@ -384,13 +392,12 @@ void work_with_produts(struct product *products, struct cart *cart, int product_
 }
 
 int main() {
-	struct product products[50];
+	struct product products[MAX_PRODUCTS];
     struct cart cart;
+    struct cart orders[MAX_PRODUCTS];
     int product_count = 0;
 
-    work_with_produts(products, &cart, product_count);
-    
-    menu();
+    work_with_produts(products, &cart, orders, &product_count);
 
     return 0;
 }
