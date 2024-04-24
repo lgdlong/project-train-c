@@ -109,7 +109,6 @@ void customer_inf(struct order *orders) { /* Intput customer_name, address, paym
 
 }
 
-
 void addProduct(struct product *products, int *product_count) {
     printf("\nNhap ten san pham: ");
     getchar(); 
