@@ -295,7 +295,7 @@ Khi mình truy cứu một đơn mua thì in ra danh sách gồm có:
     printf("1. Them don mua\n");
     printf("2. Xoa don mua\n");
     printf("3. Sua don mua\n");
-    printf("4. Quay ve danh sach lua chon truoc do\n");
+    printf("4.Quay ve menu truoc do\n");
     printf("\n");
 
     lua_chon(&choice1);
@@ -346,8 +346,8 @@ void work_with_cart(struct product *products, struct cart *cart, struct order *o
         printf("\n2. Them san pham vao gio hang");
         printf("\n3. Xoa san pham khoi gio hang");
         printf("\n4. Chinh sua gio hang");
-        printf("\n5. Hoan tat mua sam va thanh toan");
-        printf("\n0. Thoat\n");
+        printf("\n5. Hoan tat gio hang va bat dau thanh toan");
+        printf("\n0. Quay ve menu truoc do\n");
         printf("\nNhap lua chon: ");
         scanf("%d", &choice); getchar();
         switch (choice) {
@@ -383,7 +383,7 @@ void work_with_produts(struct product *products, struct cart *cart, struct order
         printf("\n2. Hien thi danh sach san pham");
         printf("\n3. Chinh sua thong tin san pham");
         printf("\n4. Lam viec voi gio hang");
-        printf("\n0. Thoat\n");
+        printf("\n0. Thoat chuong trinh\n");
         printf("\nNhap lua chon cua ban: ");
         scanf("%d", &choice);
         switch (choice) {
