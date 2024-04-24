@@ -138,6 +138,15 @@ void displayProducts(struct product *products, int product_count) {
     }
 }
 
+void display_cart(struct cart *cart) {
+    /*
+    Cái này của Long thêm vào
+    */
+    for (int i = 0; i < sizeof(cart); i++) {
+        printf("%s\n", cart[i].products->productName);
+    }
+}
+
 void create_cart(struct cart *cart) { // Hàm tạo giỏ hàng
     cart->num_products = 0;
     cart->total_price = 0;
@@ -303,7 +312,7 @@ Khi mình truy cứu một đơn mua thì in ra danh sách gồm có:
     do {
         switch (choice1) {
             case 1:
-                // --> in ra giỏ hàng
+                display_cart(cart); // In giỏ hàng
 
                 // lấy num xong check qua giỏ hàng
                 printf("Moi nhap so thu tu cua san pham can them trong gio hang: ");
