@@ -53,21 +53,27 @@ struct order {
     char address[50];
     char phone[50];
     char payment_method[50];
-    char payment_status;
+    bool payment_status;
 };
 
 
 
-void customer_inf(struct order *orders) {
+void customer_inf(struct order *orders) { /* Intput customer_name, address, payment_method */
     printf("\n======== Vui long dien thong tin khach hang ========\n");
 
+    // Nhập tên người mua
     printf("Ten: ");
     fgets(orders->customer_name, sizeof(orders->customer_name), stdin);
     orders->customer_name[strcspn(orders->customer_name, "\n")] = '\0';
 
+    // Nhập địa chỉ
     printf("Dia chi: ");
     fgets(orders->address, sizeof(orders->address), stdin);
     orders->address[strcspn(orders->address, "\n")] = '\0';
+
+    // Nhập số điện thoại
+    printf("So dien thoai: ");
+    scanf("%s", &orders->phone);
 
     printf("\nHinh thuc thanh toan: \n");
     printf("\t1. Chuyen phat thanh thu ho (COD)\n");
@@ -76,9 +82,9 @@ void customer_inf(struct order *orders) {
 
     printf("\tMoi chon so thu tu hinh thuc thanh toan: ");
 
+    // Chọn phương thức thanh toán
     int payment_method_choice;
     scanf("%d", &payment_method_choice); getchar();
-
     switch (payment_method_choice) {
     case 1:
         strcpy(orders->payment_method, "COD");
@@ -96,6 +102,11 @@ void customer_inf(struct order *orders) {
         printf("Lua chon khong hop le!\n");
         break;
     }
+
+    // Cập nhật trạng thái thanh toán
+    if (orders->payment_status == true) printf("Da thanh toan\n");
+    else printf("Chua thanh toan\n");
+
 }
 
 
@@ -280,7 +291,7 @@ Khi mình truy cứu một đơn mua thì in ra danh sách gồm có:
     customer_inf(orders); // Nhập thông tin người mua
 
     int num, choice1;
-    printf("\n====================MENU==============\n");
+    printf("\n=============== MENU ===============\n");
     printf("1. Them don mua\n");
     printf("2. Xoa don mua\n");
     printf("3. Sua don mua\n");
@@ -330,7 +341,7 @@ Khi mình truy cứu một đơn mua thì in ra danh sách gồm có:
 void work_with_cart(struct product *products, struct cart *cart, struct order *orders, int product_count) { // Hàm làm việc với giỏ hàng
     int choice;
     do {
-        printf("\n======== MENU ========");
+        printf("\n============= MENU ==============");
         printf("\n1. Tao moi gio hang");
         printf("\n2. Them san pham vao gio hang");
         printf("\n3. Xoa san pham khoi gio hang");
@@ -367,7 +378,7 @@ void work_with_cart(struct product *products, struct cart *cart, struct order *o
 void work_with_produts(struct product *products, struct cart *cart, struct order *orders, int *product_count) {
     int choice;
     do {
-        printf("\n======== MENU ========");
+        printf("\n============ MENU ============");
         printf("\n1. Them san pham");
         printf("\n2. Hien thi danh sach san pham");
         printf("\n3. Chinh sua thong tin san pham");
