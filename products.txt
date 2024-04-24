@@ -1,0 +1,4 @@
+Ao so mi, 50, 100.00
+Ao khoac, 20, 150.00
+Giay the thao, 50, 600.00
+Quan jean, 100, 200.00
