@@ -524,8 +524,6 @@ Khi mình truy cứu một đơn mua thì in ra danh sách gồm có:
     // BẮT ĐẦU CODE
     ExportOrderIntoFile(cart);
 
-    customer_inf(orders); // Nhập thông tin người mua
-
     int num, choice1;
     printf("\n=============== MENU ===============\n");
     printf("1. Them don mua\n");
