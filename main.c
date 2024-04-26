@@ -48,19 +48,21 @@ struct customer_inf{ // Thông tin cá nhân của người mua
     char address[MAX_ADDRESS_LENGTH];
     char phone[MAX_PHONE_LENGTH];
     char payment_method[MAX_PAYMENT_METHOD_LENGTH];
-    int payment_status; // Trạng thái thanh toán (0: Chưa thanh toán, 1: Đã thanh toán)
+    
 };
 struct cart {
     struct product products[MAX_PRODUCTS];
     struct customer_inf *customer;
     int num_products;
     float total_price;
+    int payment_status; // Trạng thái thanh toán (0: Chưa thanh toán, 1: Đã thanh toán)
 };
 struct order {
     struct product products[MAX_PRODUCTS];
     struct customer_inf *customer;
     int num_products;
     float total_price;
+    int payment_status; // Trạng thái thanh toán (0: Chưa thanh toán, 1: Đã thanh toán)
 };
 
 struct customer_cart {
@@ -72,8 +74,8 @@ struct customer_cart customer_carts[MAX_CUSTOMERS];
 int num_customer_carts = 0;
 int order_count = 0;
 
-bool isPaymentComplete(struct customer_inf *customer) {
-    return customer->payment_status == 1;
+bool isPaymentComplete(struct cart cart) {
+    return cart.payment_status == 1;
 }
 
 bool isValidQuantity(int quantity) {
@@ -164,11 +166,6 @@ void fill_customer_inf(struct customer_inf *customer) { // Intput customer_name,
         printf("Lua chon khong hop le!\n");
         break;
     }
-
-    customer->payment_status = 0; // Đánh dấu chưa thanh toán
-
-
-
 }
 
 
@@ -273,7 +270,7 @@ void updateProductsFile(struct product *products, int product_count) { //Hàm c�
 }
 
 void ExportOrderIntoFile(struct cart *cart) {
-    if (isPaymentComplete(cart->customer)) {
+    if (isPaymentComplete(*cart)) {
         FILE *file = fopen("order.txt", "w");
         if (file == NULL) {
             printf("Khong the mo file.\n");
@@ -289,7 +286,6 @@ void ExportOrderIntoFile(struct cart *cart) {
 }
 
 // WORK WITH CART
-
 void display_cart_contents(struct cart *cart) {
     printf("\nDanh sach san pham trong gio hang:\n");
     for (int i = 0; i < cart->num_products; i++) {
@@ -400,6 +396,7 @@ void add_to_cart(struct product *products, struct cart *cart, int product_count)
     cart->products[cart->num_products] = products[product_index];
     cart->products[cart->num_products].quantity = quantity;
     cart->total_price += products[product_index].price * quantity;
+    
     cart->num_products++;
 
     // Cập nhật số lượng sản phẩm còn lại trong kho
@@ -549,56 +546,41 @@ void checkout(struct cart *cart) { // Thanh toán
 
     struct customer_inf *customer = cart->customer;
     fill_customer_inf(customer);
-    customer->payment_status = 1; // Đánh dấu đã thanh toán
+    cart->payment_status = 1; // Đánh dấu đã thanh toán
     printf("\nCam on ban da mua hang! Thong tin don hang:\n");
     display_cart_contents(cart);
 }
 
-void createOrder(struct cart *cart) {
-    struct order order;
-    strcpy(order.customer->customer_name, cart->customer->customer_name);
-    strcpy(order.customer->address, cart->customer->address);
-    strcpy(order.customer->phone, cart->customer->phone);
-    strcpy(order.customer->payment_method, cart->customer->payment_method);
-    order.customer->payment_status = cart->customer->payment_status;
-    order.total_price = cart->total_price;
-    order.num_products = cart->num_products;
+void createOrder(struct cart *cart, struct order *order) { // Tạo đơn mua
+
+    order_count++;
+
+    // Sao chép thông tin cá nhân của khách hàng từ giỏ hàng sang đơn mua
+    strcpy(order[order_count].customer->customer_name, cart->customer->customer_name);
+    strcpy(order[order_count].customer->address, cart->customer->address);
+    strcpy(order[order_count].customer->phone, cart->customer->phone);
+    strcpy(order[order_count].customer->payment_method, cart->customer->payment_method);
+    order[order_count].payment_status = cart->payment_status;
+
+
+    // Sao chép tổng giá và số lượng sản phẩm
+    order[order_count].total_price = cart->total_price;
+    order[order_count].num_products = cart->num_products;
+
+    // Sao chép thông tin giỏ hàng
     for (int i = 0; i < cart->num_products; i++) {
-        strcpy(order.products[i].productName, cart->products[i].productName);
-        order.products[i].quantity = cart->products[i].quantity;
-        order.products[i].price = cart->products[i].price;
-        order.products[i].code = cart->products[i].code;
+        order[order_count].products[i].code = cart->products[i].code;
+        strcpy(order[order_count].products[i].productName, cart->products[i].productName);
+        order[order_count].products[i].quantity = cart->products[i].quantity;
+        order[order_count].products[i].price = cart->products[i].price;
     }
 
     printf("\nDon hang da duoc tao!\n");
     printf("Thong tin don hang:\n");
     display_cart_contents(cart);
-    order_count++;
 }
 
-void addOrder(struct order *orders, struct cart *cart, int *order_count) {
-    if (isPaymentComplete(cart->customer)) {
-        // Tạo một đơn hàng mới từ giỏ hàng
-        struct order new_order;
-        // Gán các giá trị từ giỏ hàng vào đơn hàng mới
-        for (int i = 0; i < cart->num_products; ++i) {
-            new_order.products[i] = cart->products[i];
-        }
-        new_order.num_products = cart->num_products;
-        new_order.total_price = cart->total_price;
-        // Giả sử rằng còn các trường khác trong struct order cần phải được gán
-        
-        // Thêm đơn hàng mới vào mảng orders
-        orders[*order_count] = new_order;
-        (*order_count)++;
-        printf("Don hang da duoc them!\n");
-    }
-    else {
-        printf("Khong the them don hang vi chua thanh toan!\n");
-    }
-}
-
-void cancelOrder(struct order *orders, int *order_count) {
+void cancelOrder(struct order *orders, int *order_count) { // hủy đơn mua
     if (*order_count == 0) {
         printf("Khong co don hang de huy!\n");
         return;
@@ -624,7 +606,7 @@ void cancelOrder(struct order *orders, int *order_count) {
     printf("Don hang da duoc huy!\n");
 }
 
-void modifyOrder(struct order *orders, int order_count) {
+void modifyOrder(struct order *orders, int order_count) { // sửa đổi thông tin trong đơn mua
     if (order_count == 0) {
         printf("Khong co don hang de sua!\n");
         return;
@@ -697,48 +679,48 @@ Khi mình truy cứu một đơn mua thì in ra danh sách gồm có:
 */
 
     // BẮT ĐẦU CODE
-    // ExportOrderIntoFile(cart);
 
-    int num, choice1;
-    printf("\n=============== MENU ===============\n");
-    printf("1. Tao don mua");
-    printf("2. Them don mua\n");
-    printf("3. Xoa don mua\n");
-    printf("4. Sua don mua\n");
-    printf("5. Hien thi don mua");
-    printf("6. Thanh toan");
-    printf("7. Quay ve menu truoc do\n");
-    printf("\n");
-
-    printf("Moi nhap lua chon: ");
-    scanf("%d", &choice1);
-    printf("\n");
+    int num;
+    int choice1;
+    
 
     do {
+        printf("\n=============== MENU ===============\n");
+        printf("1. Tao don mua\n");
+        printf("2. Huy don mua\n");
+        printf("3. Sua don mua\n");
+        printf("4. Hien thi don mua\n");
+        printf("5. Thanh toan\n");
+        printf("6. Quay ve menu truoc do\n");
+        printf("\n");
+
+        printf("Moi nhap lua chon: ");
+        scanf("%d", &choice1);
+        printf("\n");
+
         switch (choice1) {
             case 1:
-                createOrder(cart);
+                createOrder(cart, orders);
                 break;
             case 2:
-                addOrder(orders, cart, &order_count);
-                break;
-            case 3:
                 cancelOrder(orders, &order_count);
                 break;
-            case 4:
+            case 3:
                 modifyOrder(orders, order_count);
                 break;
-            case 5:
+            case 4:
                 displayOrder(orders);
                 break;
-            case 6:
+            case 5:
                 checkout(cart);
+                break;
+            case 6:
                 break;
             default:
                 printf("Invalid choice!\n");
         }
     }
-    while (choice1 != 5);
+    while (choice1 != 6);
 }
 
 void work_with_cart(struct product *products, struct cart *cart, struct order *orders, int product_count) { // Hàm làm việc với giỏ hàng
