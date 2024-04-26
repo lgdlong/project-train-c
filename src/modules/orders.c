@@ -115,7 +115,6 @@ void createOrder(struct cart *cart, struct order *order) { // Tạo đơn mua
     strcpy(order[order_count].customer->payment_method, cart->customer->payment_method);
     order[order_count].payment_status = cart->payment_status;
 
-
     // Sao chép tổng giá và số lượng sản phẩm
     order[order_count].total_price = cart->total_price;
     order[order_count].num_products = cart->num_products;

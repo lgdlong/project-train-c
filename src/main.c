@@ -48,12 +48,14 @@ int product_count = 0;
 
 void work_with_produts(struct product *products, struct cart *cart, struct order *orders, int product_count) {
     int choice;
+
     do {
         printf("\n============ MENU ============");
         printf("\n1. Them san pham");
         printf("\n2. Hien thi danh sach san pham");
         printf("\n3. Chinh sua thong tin san pham");
-        printf("\n4. Lam viec voi gio hang");
+        printf("\n4. Xoa san pham");
+        printf("\n5. Lam viec voi gio hang");
         printf("\n0. Thoat chuong trinh\n");
         printf("\nNhap lua chon cua ban: ");
         scanf("%d", &choice);
@@ -65,9 +67,12 @@ void work_with_produts(struct product *products, struct cart *cart, struct order
                 displayProducts(products, product_count);
                 break;
             case 3:
-                fixProducts(products, product_count);
+                editProduct(products, product_count);
                 break;
             case 4:
+                deleteProduct(products, &product_count);
+                break;
+            case 5:
                 work_with_cart(products, cart, orders, product_count);
                 break;
             case 0:

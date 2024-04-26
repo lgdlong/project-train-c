@@ -1,5 +1,6 @@
 #include "../../include/libaries_and_define.h"
 #include "../../include/products.h"
+#include "../../include/file.h"
 
 struct product {
     char productName[MAX_NAME_LENGTH];
@@ -11,54 +12,136 @@ struct product {
 // WORK WITH PRODUCTS
 void displayProducts(struct product *products, int product_count) {
     printf("\nDanh sach san pham:\n");
-    for (int i = 0; i < product_count; i++) {
-        printf("Ma san pham: %d | Ten san pham: %s | So luong: %d | Gia: %.3lf\n", products[i].code, products[i].productName, products[i].quantity, products[i].price);
+    int i;
+    for (i = 0; i < product_count; i++) {
+        printf("San pham %d:\n", i + 1);
+        printf("Ten: %s\n", products[i].productName);
+        printf("So luong: %d\n", products[i].quantity);
+        printf("Gia: %.2lf\n\n", products[i].price);
     }
 }
 
 void addProduct(struct product *products, int *product_count) {
-    static int last_product_code = 0;
-    
-    printf("\nNhap ten san pham: ");
+    printf("Nhap ten san pham: ");
     getchar(); 
     fgets(products[*product_count].productName, sizeof(products[*product_count].productName), stdin);
     products[*product_count].productName[strcspn(products[*product_count].productName, "\n")] = '\0';
 
-    printf("Nhap so luong: ");
-    scanf("%d", &products[*product_count].quantity);
+    int quantity;
+    do {
+        printf("Nhap so luong: ");
+        if (scanf("%d", &quantity) != 1) {
+            printf("Loi nhap! Vui long nhap lai.\n");
+            while(getchar() != '\n');
+            continue;
+        }
+        if (quantity <= 0) {
+            printf("So luong phai la so duong. Vui long nhap lai.\n");
+        }
+    } while (quantity <= 0);
 
-    printf("Nhap gia san pham: ");
-    scanf("%lf", &products[*product_count].price);
+    products[*product_count].quantity = quantity;
 
-    last_product_code++; // Tăng giá trị của mã sản phẩm cuối cùng
-    products[*product_count].code = last_product_code;
+    double price;
+    char buffer[100];
+    bool validPrice = false;
+    while (!validPrice) {
+        printf("Nhap gia san pham: ");
+        if (scanf("%s", buffer) != 1 || sscanf(buffer, "%lf", &price) != 1) {
+            printf("Loi nhap! Vui long nhap lai.\n");
+            while(getchar() != '\n');
+            continue;
+        }
+        if (price <= 0) {
+            printf("Gia san pham phai la so duong. Vui long nhap lai.\n");
+        } else {
+            validPrice = true;
+        }
+    }
+
+    products[*product_count].price = price;
 
     (*product_count)++;
+
+    writeProductsToFile(products, *product_count);
 }
 
-void fixProducts(struct product *products, int product_count){
-	int i;
-	displayProducts(products, product_count);
-	printf("Nhap ma san pham muon thay doi: ");
-	scanf("%d", &i);
-	
-	int j=i-1;
-	
-	if(j>=0 && j< product_count) {
-	printf("Nhap ten moi cho san pham: ");
-	getchar();
-        fgets(products[j].productName, sizeof(products[j].productName), stdin);
-        products[j].productName[strcspn(products[j].productName, "\n")] = '\0';
+void editProduct(struct product *products, int product_count) {
+    int index;
+    displayProducts(products, product_count);
 
-        printf("Nhap so luong moi: ");
-        scanf("%d", &products[j].quantity);
-
-        printf("Nhap gia moi: ");
-        scanf("%lf", &products[j].price);
-
-        printf("Thong tin san pham da cap nhat thanh cong!\n");
+    printf("Nhap so thu tu cua san pham muon sua: ");
+    if (scanf("%d", &index) != 1) {
+        printf("Vui long nhap mot chu so!\n");
+        while (getchar() != '\n');
+        return;
     }
-    else {
-        printf("So nay khong phu hop!\n");
+    index--;
+
+    if (index >= 0 && index < product_count) {
+        printf("Ten san pham moi: ");
+        getchar();
+        fgets(products[index].productName, sizeof(products[index].productName), stdin);
+        products[index].productName[strcspn(products[index].productName, "\n")] = '\0';
+
+        int quantity;
+        do {
+            printf("Nhap so luong moi: ");
+            if (scanf("%d", &quantity) != 1) {
+                printf("Loi nhap! Vui long nhap lai.\n");
+                while (getchar() != '\n');
+                continue;
+            }
+            if (quantity <= 0) {
+                printf("So luong phai la so duong. Vui long nhap lai.\n");
+            }
+        } while (quantity <= 0);
+        products[index].quantity = quantity;
+
+    double price;
+    char buffer[100];
+    bool validPrice = false;
+    while (!validPrice) {
+        printf("Nhap gia san pham: ");
+        if (scanf("%s", buffer) != 1 || sscanf(buffer, "%lf", &price) != 1) {
+            printf("Loi nhap! Vui long nhap lai.\n");
+            while(getchar() != '\n');
+            continue;
+        }
+        if (price <= 0) {
+            printf("Gia san pham phai la so duong. Vui long nhap lai.\n");
+        } else {
+            validPrice = true;
+        }
+    }
+    products[index].price = price;
+    printf("Cap nhat san pham thanh cong!\n");
+    } else {
+        printf("So thu tu khong hop le!\n");
+    }
+}
+
+void deleteProduct(struct product *products, int *product_count) {
+    int index;
+    displayProducts(products, *product_count);
+
+    printf("Nhap so thu tu cua san pham muon xoa: ");
+    if(scanf("%d", &index) != 1) {
+        printf("Vui long nhap mot chu so!\n");
+        while(getchar() != '\n');
+        return;
+    }
+    index--;
+	int i;
+    if (index >= 0 && index < *product_count) {
+        for (i = index; i < *product_count - 1; i++) {
+            products[i] = products[i + 1];
+        }
+        (*product_count)--;
+        printf("Xoa san pham thanh cong!\n");
+
+        writeProductsToFile(products, *product_count);
+    } else {
+        printf("So thu tu khong hop le!\n");
     }
 }

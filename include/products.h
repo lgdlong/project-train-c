@@ -3,6 +3,8 @@
 
 void displayProducts(struct product *products, int product_count);
 void addProduct(struct product *products, int *product_count);
-void fixProducts(struct product *products, int product_count);
+void editProduct(struct product *products, int product_count);
+void deleteProduct(struct product *products, int *product_count);
+
 
 #endif
