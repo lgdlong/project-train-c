@@ -157,66 +157,6 @@ void add_to_cart(struct product *products, struct cart *cart, int product_count)
     display_cart_contents(cart);
 }
 
-
-/*
-void add_to_cart(struct product *products, struct cart *cart, int product_count) { //Đã sửa đổi từ so sánh từ tên sản phẩm sang so sánh mã sản phẩm
-    displayProducts(products, product_count);
-
-    int count_to_display_cart_content = 0;
-    if (count_to_display_cart_content != 0) display_cart_contents(cart);
-
-    int code_of_product;
-    int quantity;
-    printf("Nhap ma san pham muon them: ");
-    if (scanf("%d", &code_of_product) != 1) {
-        printf("Nhap khong hop le!\n");
-        return;
-    }
-
-    for (int i = 0; i < product_count; i++) {
-        if (products[i].code == code_of_product) {
-            printf("Nhap so luong: ");
-            
-            if (scanf("%d", &quantity) != 1) {
-                printf("Nhap khong hop le!\n");
-                return;
-            }
-            if (quantity > products[i].quantity) {
-                printf("So luong khong du trong kho!\n");
-                return;
-            }
-            
-            cart->products[cart->num_products] = products[i];
-            cart->products[cart->num_products].quantity = quantity;
-            cart->total_price += products[i].price * quantity;
-            cart->num_products++;
-            products[i].quantity -= quantity;
-            printf("San pham da duoc them vao gio hang!\n"); 
-
-            count_to_display_cart_content++;
-            updateProductsFile(products, product_count);
-
-
-
-            // cap nhat san pham them vao gio hang cua khach hang
-            // Cập nhật thông tin cho sản phẩm được thêm vào giỏ hàng của khách hàng
-            customer_carts[num_customer_carts].cart.products[i].code = code_of_product;
-
-            strcpy(customer_carts[num_customer_carts].cart.products[i].productName, cart->products[cart->num_products - 1].productName);
-
-            customer_carts[num_customer_carts].cart.products[i].quantity = cart->products[cart->num_products - 1].quantity;
-
-
-            display_cart_contents(cart);
-            return;
-        }
-    }
-
-
-    printf("Khong tim thay san pham trong danh sach!\n");
-}
-*/
-
 void delete_from_cart(struct product *products, struct cart *cart, int product_count) { //Đã sửa đổi từ so sánh từ tên sản phẩm sang so sánh mã sản phẩm
     if (cart->num_products == 0) {
         printf("Gio hang trong!\n");
