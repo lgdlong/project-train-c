@@ -1,1 +1,0 @@
-g++ -o main src/main.c src/modules/products.c src/modules/carts.c src/modules/orders.c src/modules/file.c
