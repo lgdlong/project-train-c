@@ -42,11 +42,39 @@ void addProduct(struct Product *products, int *product_count) {
     fgets(products[*product_count].productName, sizeof(products[*product_count].productName), stdin);
     products[*product_count].productName[strcspn(products[*product_count].productName, "\n")] = '\0';
 
-    printf("Nhap so luong: ");
-    scanf("%d", &products[*product_count].quantity);
+    int quantity;
+    do {
+        printf("Nhap so luong: ");
+        if (scanf("%d", &quantity) != 1) {
+            printf("Loi nhap! Vui long nhap lai.\n");
+            while(getchar() != '\n');
+            continue;
+        }
+        if (quantity <= 0) {
+            printf("So luong phai la so duong. Vui long nhap lai.\n");
+        }
+    } while (quantity <= 0);
 
-    printf("Nhap gia san pham: ");
-    scanf("%lf", &products[*product_count].price);
+    products[*product_count].quantity = quantity;
+
+    double price;
+    char buffer[100];
+    bool validPrice = false;
+    while (!validPrice) {
+        printf("Nhap gia san pham: ");
+        if (scanf("%s", buffer) != 1 || sscanf(buffer, "%lf", &price) != 1) {
+            printf("Loi nhap! Vui long nhap lai.\n");
+            while(getchar() != '\n');
+            continue;
+        }
+        if (price <= 0) {
+            printf("Gia san pham phai la so duong. Vui long nhap lai.\n");
+        } else {
+            validPrice = true;
+        }
+    }
+
+    products[*product_count].price = price;
 
     (*product_count)++;
 
@@ -69,10 +97,9 @@ void editProduct(struct Product *products, int product_count) {
     displayProducts(products, product_count);
 
     printf("Nhap so thu tu cua san pham muon sua: ");
-    scanf("%d", &index);
-    if(scanf("%d", &index) != 1) {
+    if (scanf("%d", &index) != 1) {
         printf("Vui long nhap mot chu so!\n");
-        while(getchar() != '\n'); 
+        while (getchar() != '\n');
         return;
     }
     index--;
@@ -83,15 +110,38 @@ void editProduct(struct Product *products, int product_count) {
         fgets(products[index].productName, sizeof(products[index].productName), stdin);
         products[index].productName[strcspn(products[index].productName, "\n")] = '\0';
 
-        printf("So luong moi: ");
-        scanf("%d", &products[index].quantity);
+        int quantity;
+        do {
+            printf("Nhap so luong moi: ");
+            if (scanf("%d", &quantity) != 1) {
+                printf("Loi nhap! Vui long nhap lai.\n");
+                while (getchar() != '\n');
+                continue;
+            }
+            if (quantity <= 0) {
+                printf("So luong phai la so duong. Vui long nhap lai.\n");
+            }
+        } while (quantity <= 0);
+        products[index].quantity = quantity;
 
-        printf("Gia moi: ");
-        scanf("%lf", &products[index].price);
-
-        printf("Cap nhat san pham thanh cong!\n");
-
-        writeProductsToFile(products, product_count);
+    double price;
+    char buffer[100];
+    bool validPrice = false;
+    while (!validPrice) {
+        printf("Nhap gia san pham: ");
+        if (scanf("%s", buffer) != 1 || sscanf(buffer, "%lf", &price) != 1) {
+            printf("Loi nhap! Vui long nhap lai.\n");
+            while(getchar() != '\n');
+            continue;
+        }
+        if (price <= 0) {
+            printf("Gia san pham phai la so duong. Vui long nhap lai.\n");
+        } else {
+            validPrice = true;
+        }
+    }
+    products[index].price = price;
+    printf("Cap nhat san pham thanh cong!\n");
     } else {
         printf("So thu tu khong hop le!\n");
     }
@@ -102,7 +152,6 @@ void deleteProduct(struct Product *products, int *product_count) {
     displayProducts(products, *product_count);
 
     printf("Nhap so thu tu cua san pham muon xoa: ");
-    scanf("%d", &index);
     if(scanf("%d", &index) != 1) {
         printf("Vui long nhap mot chu so!\n");
         while(getchar() != '\n');
@@ -138,7 +187,6 @@ int main() {
         printf("4. Xoa san pham\n");
         printf("5. Thoat chuong trinh\n");
         printf("Nhap lua chon cua ban: ");
-        scanf("%d", &choice);
         
         if(scanf("%d", &choice) != 1) {
         printf("Vui long nhap mot chu so!\n");
