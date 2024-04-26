@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 
 struct Product {
     char productName[100];
@@ -122,50 +122,3 @@ void deleteProduct(struct Product *products, int *product_count) {
         printf("So thu tu khong hop le!\n");
     }
 }
-
-int main() {
-    struct Product products[50];
-    int product_count = 0;
-    int choice;
-
-    readProductsFromFile(products, &product_count);
-
-    do {
-        printf("\nMenu:\n");
-        printf("1. Them san pham\n");
-        printf("2. Hien thi danh sach san pham\n");
-        printf("3. Chinh sua thong tin san pham\n");
-        printf("4. Xoa san pham\n");
-        printf("5. Thoat chuong trinh\n");
-        printf("Nhap lua chon cua ban: ");
-        scanf("%d", &choice);
-        
-        if(scanf("%d", &choice) != 1) {
-        printf("Vui long nhap mot chu so!\n");
-        while(getchar() != '\n');
-        continue;
-}
-        switch (choice) {
-            case 1:
-                addProduct(products, &product_count);
-                break;
-            case 2:
-                displayProducts(products, product_count);
-                break;
-            case 3:
-                editProduct(products, product_count);
-                break;
-            case 4:
-                deleteProduct(products, &product_count);
-                break;
-            case 5:
-                printf("Ket thuc chuong trinh.\n");
-                break;
-            default:
-                printf("Lua chon khong hop le! Vui long chon lai.\n");
-        }
-    } while (choice != 5);
-
-    return 0;
-}
-
