@@ -1,6 +1,8 @@
-#include "../include/libaries_and_define.h"
-#include "../include/products.h"
-#include "../include/carts.h"
+#include "../../include/libaries_and_define.h"
+#include "../../include/products.h"
+#include "../../include/carts.h"
+#include "../../include/file.h"
+
 
 struct product {
     char productName[MAX_NAME_LENGTH];
@@ -28,9 +30,7 @@ struct customer_cart {
     struct cart cart;
 };
 
-struct customer_cart customer_carts[MAX_CUSTOMERS];
-int num_customer_carts = 0;
-int order_count = 0;
+extern struct customer_cart customer_carts[MAX_CUSTOMERS];
 
 void display_cart_contents(struct cart *cart) {
     printf("\nDanh sach san pham trong gio hang:\n");
@@ -216,7 +216,6 @@ void add_to_cart(struct product *products, struct cart *cart, int product_count)
     printf("Khong tim thay san pham trong danh sach!\n");
 }
 */
-
 
 void delete_from_cart(struct product *products, struct cart *cart, int product_count) { //Đã sửa đổi từ so sánh từ tên sản phẩm sang so sánh mã sản phẩm
     if (cart->num_products == 0) {

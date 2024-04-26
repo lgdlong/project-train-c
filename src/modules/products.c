@@ -1,5 +1,5 @@
-#include "../include/libaries_and_define.h"
-#include "../include/products.h"
+#include "../../include/libaries_and_define.h"
+#include "../../include/products.h"
 
 struct product {
     char productName[MAX_NAME_LENGTH];

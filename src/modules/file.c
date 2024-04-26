@@ -1,7 +1,9 @@
-#include "../include/libaries_and_define.h"
-#include "../include/file.h"
-#include "../include/products.h"
-#include "../include/carts.h"
+#include "../../include/libaries_and_define.h"
+#include "../../include/file.h"
+#include "../../include/products.h"
+#include "../../include/carts.h"
+#include "../../include/orders.h"
+#include "../../include/check.h"
 
 struct product {
     char productName[MAX_NAME_LENGTH];
@@ -64,7 +66,7 @@ void updateProductsFile(struct product *products, int product_count) { //HÃ m cá
 }
 
 void ExportOrderIntoFile(struct cart *cart) {
-    if (isPaymentComplete(*cart)) {
+    if (isPaymentComplete(*cart) == true) {
         FILE *file = fopen("order.txt", "w");
         if (file == NULL) {
             printf("Khong the mo file.\n");

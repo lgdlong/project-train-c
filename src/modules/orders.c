@@ -1,7 +1,7 @@
-#include "../include/libaries_and_define.h"
-#include "../include/products.h"
-#include "../include/carts.h"
-#include "../include/orders.h"
+#include "../../include/libaries_and_define.h"
+#include "../../include/products.h"
+#include "../../include/carts.h"
+#include "../../include/orders.h"
 
 struct product {
     char productName[MAX_NAME_LENGTH];
@@ -37,12 +37,58 @@ struct customer_cart {
     struct cart cart;
 };
 
-struct customer_cart customer_carts[MAX_CUSTOMERS];
-int num_customer_carts = 0;
-int order_count = 0;
+extern struct customer_cart customer_carts[MAX_CUSTOMERS];
+
 
 
 // WORK WITH ORDERS
+void fill_customer_inf(struct customer_inf *customer) { // Intput customer_name, address, payment_method
+    printf("\n======== Vui long dien thong tin khach hang ========\n");
+
+    // Nhập tên người mua
+    printf("Ten: ");
+    fgets(customer->customer_name, sizeof(customer->customer_name), stdin);
+    customer->customer_name[strcspn(customer->customer_name, "\n")] = '\0';
+
+    // Nhập địa chỉ
+    printf("Dia chi: ");
+    fgets(customer->address, sizeof(customer->address), stdin);
+    customer->address[strcspn(customer->address, "\n")] = '\0';
+
+    // Nhập số điện thoại
+    printf("So dien thoai: ");
+    scanf("%s", &customer->phone); getchar();
+
+    // Chọn phương thức thanh toán
+    printf("\nHinh thuc thanh toan: \n");
+    printf("\t1. Chuyen phat thanh thu ho (COD)\n");
+    printf("\t2. Vi dien tu\n");
+    printf("\t3. The tin dung/the ghi no\n");
+
+    printf("\tMoi chon so thu tu hinh thuc thanh toan: ");
+
+    int payment_method_choice;
+    scanf("%d", &payment_method_choice); getchar();
+    switch (payment_method_choice) {
+    case 1:
+        strcpy(customer->payment_method, "COD");
+        printf("\nDa chon: Chuyen phat thanh thu ho (COD)!\n");
+        break;
+    case 2:
+        strcpy(customer->payment_method, "Vi dien tu");
+        printf("\nDa chon: Vi dien tu!\n");
+        break;
+    case 3:
+        strcpy(customer->payment_method, "The tin dung/ghi no");
+        printf("\nDa chon: The tin dung/the ghi no!\n");
+        break;
+    default:
+        printf("Lua chon khong hop le!\n");
+        break;
+    }
+}
+
+
 void checkout(struct cart *cart) { // Thanh toán
     printf("\nTong gia tri gio hang: %.3lf\n", cart->total_price);
 
