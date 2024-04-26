@@ -18,6 +18,7 @@ void displayProducts(struct product *products, int product_count) {
         printf("Ten: %s\n", products[i].productName);
         printf("So luong: %d\n", products[i].quantity);
         printf("Gia: %.2lf\n\n", products[i].price);
+	printf("Ma san pham: %d", product[i].code; //Moi them dong nay
     }
 }
 
@@ -60,7 +61,7 @@ void addProduct(struct product *products, int *product_count) {
     }
 
     products[*product_count].price = price;
-
+    product[*product_count].code = *product_count; //Moi them dong nay
     (*product_count)++;
 
     writeProductsToFile(products, *product_count);
