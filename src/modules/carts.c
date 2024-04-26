@@ -25,7 +25,7 @@ struct cart {
     float total_price;
     int payment_status; // Trạng thái thanh toán (0: Chưa thanh toán, 1: Đã thanh toán)
 };
-struct customer_cart {
+struct customer_carts {
     struct customer_inf *customer;
     struct cart cart;
 };
