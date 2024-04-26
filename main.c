@@ -28,20 +28,19 @@ Khi mình truy cứu một đơn mua thì in ra danh sách gồm có:
 #include <string.h>
 #include <conio.h>
 #include <stdlib.h>
-#include <stdlib.h> 
 
-#include "menu.c"
 #define MAX_PRODUCTS 50
 #define MAX_NAME_LENGTH 50
 #define MAX_ADDRESS_LENGTH 50
 #define MAX_PHONE_LENGTH 15
 #define MAX_PAYMENT_METHOD_LENGTH 20
+#define MAX_CUSTOMERS 50
 
 struct product {
     char productName[MAX_NAME_LENGTH];
     int quantity;
     double price;
-    int code; // mới thêm kiểu code, như id vậy
+    int code; // Mã sản phẩm
 };
 struct customer_inf{ // Thông tin cá nhân của người mua
     int customer_id;
@@ -49,7 +48,7 @@ struct customer_inf{ // Thông tin cá nhân của người mua
     char address[MAX_ADDRESS_LENGTH];
     char phone[MAX_PHONE_LENGTH];
     char payment_method[MAX_PAYMENT_METHOD_LENGTH];
-    int payment_status;
+    int payment_status; // Trạng thái thanh toán (0: Chưa thanh toán, 1: Đã thanh toán)
 };
 struct cart {
     struct product products[MAX_PRODUCTS];
@@ -59,10 +58,19 @@ struct cart {
 };
 struct order {
     struct product products[MAX_PRODUCTS];
+    struct customer_inf *customer;
     int num_products;
     float total_price;
 };
 
+struct customer_cart {
+    struct customer_inf *customer;
+    struct cart cart;
+};
+
+struct customer_cart customer_carts[MAX_CUSTOMERS];
+int num_customer_carts = 0;
+int order_count = 0;
 
 bool isPaymentComplete(struct customer_inf *customer) {
     return customer->payment_status == 1;
@@ -85,9 +93,9 @@ int getIntegerInput() {
     return input;
 }
 
-bool isProductInCart(int code_of_product, struct cart *cart) {
-    for (int i = 0; i < cart->num_products; i++) {
-        if (cart->products[i].code == code_of_product) {
+bool isProductInCart(int code_of_product, struct cart cart) {
+    for (int i = 0; i < cart.num_products; i++) {
+        if (cart.products[i].code == code_of_product) {
             return true;
         }
     }
@@ -127,7 +135,7 @@ void fill_customer_inf(struct customer_inf *customer) { // Intput customer_name,
 
     // Nhập số điện thoại
     printf("So dien thoai: ");
-    scanf("%s", &customer->phone);
+    scanf("%s", &customer->phone); getchar();
 
     // Chọn phương thức thanh toán
     printf("\nHinh thuc thanh toan: \n");
@@ -159,6 +167,8 @@ void fill_customer_inf(struct customer_inf *customer) { // Intput customer_name,
 
     customer->payment_status = 0; // Đánh dấu chưa thanh toán
 
+
+
 }
 
 
@@ -171,6 +181,8 @@ void displayProducts(struct product *products, int product_count) {
 }
 
 void addProduct(struct product *products, int *product_count) {
+    static int last_product_code = 0;
+    
     printf("\nNhap ten san pham: ");
     getchar(); 
     fgets(products[*product_count].productName, sizeof(products[*product_count].productName), stdin);
@@ -182,13 +194,16 @@ void addProduct(struct product *products, int *product_count) {
     printf("Nhap gia san pham: ");
     scanf("%lf", &products[*product_count].price);
 
+    last_product_code++; // Tăng giá trị của mã sản phẩm cuối cùng
+    products[*product_count].code = last_product_code;
+
     (*product_count)++;
 }
 
 void fixProducts(struct product *products, int product_count){
 	int i;
 	displayProducts(products, product_count);
-	printf("Nhap so cua san pham muon thay doi: ");
+	printf("Nhap ma san pham muon thay doi: ");
 	scanf("%d", &i);
 	
 	int j=i-1;
@@ -273,120 +288,133 @@ void ExportOrderIntoFile(struct cart *cart) {
     }
 }
 
-
-// WORK WITH ORDERS
-void addOrder(struct order *orders, struct cart *cart, int *order_count) {
-    if (isPaymentComplete(cart->customer)) {
-        // Tạo một đơn hàng mới từ giỏ hàng
-        struct order new_order;
-        // Gán các giá trị từ giỏ hàng vào đơn hàng mới
-        new_order.customer = cart->customer;
-        new_order.total = cart->total;
-        // Giả sử rằng còn các trường khác trong struct order cần phải được gán
-        
-        // Thêm đơn hàng mới vào mảng orders
-        orders[*order_count] = new_order;
-        (*order_count)++;
-        printf("Đơn hàng đã được thêm!\n");
-    } else {
-        printf("Không thể thêm đơn hàng vì chưa thanh toán!\n");
-    }
-}
-
-
-void cancelOrder(struct order *orders, int *order_count) {
-    if (*order_count == 0) {
-        printf("Khong co don hang de huy!\n");
-        return;
-    }
-
-    printf("Danh sach cac don hang:\n");
-    for (int i = 0; i < *order_count; i++) {
-        printf("%d. Don hang %d\n", i + 1, i + 1);
-    }
-
-    printf("Chon so thu tu cua don hang muon huy: ");
-    int choice;
-    scanf("%d", &choice);
-    if (choice < 1 || choice > *order_count) {
-        printf("Lua chon khong hop le!\n");
-        return;
-    }
-
-    for (int i = choice - 1; i < *order_count - 1; i++) {
-        orders[i] = orders[i + 1];
-    }
-    (*order_count)--;
-    printf("Don hang da duoc huy!\n");
-}
-
-void modifyOrder(struct order *orders, int order_count) {
-    if (order_count == 0) {
-        printf("Khong co don hang de sua!\n");
-        return;
-    }
-
-    printf("Danh sach cac don hang:\n");
-    for (int i = 0; i < order_count; i++) {
-        printf("%d. Don hang %d\n", i + 1, i + 1);
-    }
-
-    printf("Chon so thu tu cua don hang muon sua: ");
-    int choice;
-    scanf("%d", &choice);
-    if (choice < 1 || choice > order_count) {
-        printf("Lua chon khong hop le!\n");
-        return;
-    }
-
-    printf("Sua thong tin cho don hang %d:\n", choice);
-    // Thêm phần sửa thông tin địa chỉ nhận hàng ở đây
-    printf("Sua thong tin thanh cong!\n");
-}
-
-void displayOrder(struct order *orders, int order_count) {
-    printf("\nDanh sach cac don hang:\n");
-    for (int i = 0; i < order_count; i++) {
-        printf("Don hang %d:\n", i + 1);
-        printf("So luong san pham: %d\n", orders[i].num_products);
-        printf("Tong gia tri don hang: %.2f\n", orders[i].total_price);
-        printf("Thong tin khach hang:\n");
-        printf("Ten: %s\n", orders[i].customer->customer_name);
-        printf("Dia chi: %s\n", orders[i].customer->address);
-        printf("So dien thoai: %s\n", orders[i].customer->phone);
-        printf("Hinh thuc thanh toan: %s\n", orders[i].customer->payment_method);
-        printf("Trang thai thanh toan: %s\n", isPaymentComplete(orders[i].customer) ? "Da thanh toan" : "Chua thanh toan");
-        printf("\n");
-    }
-}
-
 // WORK WITH CART
+
 void display_cart_contents(struct cart *cart) {
-    printf("Danh sach san pham trong gio hang:\n");
+    printf("\nDanh sach san pham trong gio hang:\n");
     for (int i = 0; i < cart->num_products; i++) {
-        printf("Ten san pham: %s, So luong: %d, Ma san pham: %d\n", cart->products[i].productName, cart->products[i].quantity, cart->products[i].code);
+        printf("Ma san pham: %d | Ten san pham: %s | So luong: %d\n",  cart->products[i].code, cart->products[i].productName, cart->products[i].quantity);
     }
 }
 
-void display_cart(struct cart *cart) {
-    /*
-    Cái này của Long thêm vào
-    */
-    if (sizeof(cart) != 0) {
-        for (int i = 0; i < sizeof(cart); i++) {
-            printf("%s\n", cart[i].products->productName);
+void displayAllCarts() {
+    printf("========== DANH SACH GIO HANG ==========\n\n");
+    for (int i = 0; i < num_customer_carts; i++) {
+        printf("Thong tin khach hang:\n");
+        printf("Ten: %s\n", customer_carts[i].customer->customer_name);
+        printf("Dia chi: %s\n", customer_carts[i].customer->address);
+        printf("So dien thoai: %s\n\n", customer_carts[i].customer->phone);
+
+        printf("Danh sach san pham trong gio hang:\n");
+        for (int j = 0; j < customer_carts[i].cart.num_products; j++) {
+            printf("Ma san pham: %d | Ten san pham: %s | So luong: %d\n", 
+                   customer_carts[i].cart.products[j].code,
+                   customer_carts[i].cart.products[j].productName,
+                   customer_carts[i].cart.products[j].quantity);
+        }
+        printf("\n=======================================\n");
+    }
+}
+
+void create_cart(struct cart *cart, struct customer_inf *customer, struct product *products, int product_count) {
+    // Kiểm tra xem khách hàng đã có giỏ hàng trước đó hay chưa
+    for (int i = 0; i < num_customer_carts; i++) {
+        if (strcmp(customer_carts[i].customer->phone, customer->phone) == 0) {
+            // Nếu có, lưu giỏ hàng đó vào mảng customer_carts
+            printf("Tim thay gio hang cu cua khach hang!\n");
+            customer_carts[i].cart = *cart;
+            // Cập nhật thông tin khách hàng nếu cần thiết
+            customer_carts[i].customer = customer;
+            return;
         }
     }
+
+    // Nếu không có giỏ hàng trước đó, tạo giỏ hàng mới
+    if (num_customer_carts < MAX_CUSTOMERS) {
+        // Sao chép thông tin khách hàng vào giỏ hàng mới
+        cart->customer = (struct customer_inf *)malloc(sizeof(struct customer_inf)); // Cấp phát động
+        if (cart->customer != NULL) {
+            *cart->customer = *customer;
+        }
+        else {
+            printf("Khong the cap phat bo nho cho khach hang!\n");
+            return;
+        }
+
+        // Sao chép thông tin sản phẩm từ giỏ hàng vào giỏ hàng mới
+        for (int i = 0; i < cart->num_products; i++) {
+            cart->products[i] = products[i];
+        }
+        
+        // Thêm giỏ hàng mới vào mảng customer_carts
+        customer_carts[num_customer_carts].customer = cart->customer;
+        customer_carts[num_customer_carts].cart = *cart;
+        printf("\nGio hang da duoc tao cho khach hang %s!\n", customer->customer_name);
+
+        num_customer_carts++;
+    }
+    else {
+        printf("Da dat toi gioi han luu tru khach hang!\n");
+        return;
+    }
 }
 
-void create_cart(struct cart *cart, struct customer_inf *customer) { //Phần này thêm trạng thái thanh toán (Chưa thanh toán == 0)
-    cart->num_products = 0;
-    cart->total_price = 0;
-    cart->customer = customer;
-    fill_customer_inf(&(cart->customer));
-    printf("\nGio hang da duoc tao!\n");
+void add_to_cart(struct product *products, struct cart *cart, int product_count) {
+    displayProducts(products, product_count);
+
+    int code_of_product;
+    int quantity;
+
+    printf("Nhap ma san pham muon them: ");
+    if (scanf("%d", &code_of_product) != 1) {
+        printf("Nhap khong hop le!\n");
+        return;
+    }
+
+    // Kiểm tra xem sản phẩm có tồn tại trong kho không
+    int product_index = -1;
+    for (int i = 0; i < product_count; i++) {
+        if (products[i].code == code_of_product) {
+            product_index = i;
+            break;
+        }
+    }
+
+    if (product_index == -1) {
+        printf("San pham khong ton tai trong kho!\n");
+        return;
+    }
+
+    printf("Nhap so luong: ");
+    if (scanf("%d", &quantity) != 1) {
+        printf("Nhap khong hop le!\n");
+        return;
+    }
+
+    if (quantity > products[product_index].quantity) {
+        printf("So luong khong du trong kho!\n");
+        return;
+    }
+
+    // Thêm sản phẩm vào giỏ hàng
+    cart->products[cart->num_products] = products[product_index];
+    cart->products[cart->num_products].quantity = quantity;
+    cart->total_price += products[product_index].price * quantity;
+    cart->num_products++;
+
+    // Cập nhật số lượng sản phẩm còn lại trong kho
+    products[product_index].quantity -= quantity;
+
+    printf("San pham da duoc them vao gio hang!\n");
+
+    // Thêm sản phẩm vào giỏ hàng của khách hàng
+    customer_carts[num_customer_carts].cart.products[cart->num_products - 1] = cart->products[cart->num_products - 1];
+
+    // Hiển thị giỏ hàng sau khi thêm sản phẩm
+    display_cart_contents(cart);
 }
 
+/*
 void add_to_cart(struct product *products, struct cart *cart, int product_count) { //Đã sửa đổi từ so sánh từ tên sản phẩm sang so sánh mã sản phẩm
     displayProducts(products, product_count);
 
@@ -402,8 +430,9 @@ void add_to_cart(struct product *products, struct cart *cart, int product_count)
     }
 
     for (int i = 0; i < product_count; i++) {
-        if (products[i].code == code_of_product) { // wtf
+        if (products[i].code == code_of_product) {
             printf("Nhap so luong: ");
+            
             if (scanf("%d", &quantity) != 1) {
                 printf("Nhap khong hop le!\n");
                 return;
@@ -412,6 +441,7 @@ void add_to_cart(struct product *products, struct cart *cart, int product_count)
                 printf("So luong khong du trong kho!\n");
                 return;
             }
+            
             cart->products[cart->num_products] = products[i];
             cart->products[cart->num_products].quantity = quantity;
             cart->total_price += products[i].price * quantity;
@@ -421,11 +451,27 @@ void add_to_cart(struct product *products, struct cart *cart, int product_count)
 
             count_to_display_cart_content++;
             updateProductsFile(products, product_count);
+
+
+
+            // cap nhat san pham them vao gio hang cua khach hang
+            // Cập nhật thông tin cho sản phẩm được thêm vào giỏ hàng của khách hàng
+            customer_carts[num_customer_carts].cart.products[i].code = code_of_product;
+
+            strcpy(customer_carts[num_customer_carts].cart.products[i].productName, cart->products[cart->num_products - 1].productName);
+
+            customer_carts[num_customer_carts].cart.products[i].quantity = cart->products[cart->num_products - 1].quantity;
+
+
+            display_cart_contents(cart);
             return;
         }
     }
+
+
     printf("Khong tim thay san pham trong danh sach!\n");
 }
+*/
 
 void delete_from_cart(struct product *products, struct cart *cart, int product_count) { //Đã sửa đổi từ so sánh từ tên sản phẩm sang so sánh mã sản phẩm
     if (cart->num_products == 0) {
@@ -492,8 +538,137 @@ void modify_cart(struct product *products, struct cart *cart, int product_count)
 }
 
 
+// WORK WITH ORDERS
+void checkout(struct cart *cart) { // Thanh toán
+    printf("\nTong gia tri gio hang: %.3lf\n", cart->total_price);
+
+    if (cart->total_price == 0) {
+        printf("Gio hang cua ban dang trong, vui long them san pham truoc khi thanh toan.\n");
+        return;
+    }
+
+    struct customer_inf *customer = cart->customer;
+    fill_customer_inf(customer);
+    customer->payment_status = 1; // Đánh dấu đã thanh toán
+    printf("\nCam on ban da mua hang! Thong tin don hang:\n");
+    display_cart_contents(cart);
+}
+
+void createOrder(struct cart *cart) {
+    struct order order;
+    strcpy(order.customer->customer_name, cart->customer->customer_name);
+    strcpy(order.customer->address, cart->customer->address);
+    strcpy(order.customer->phone, cart->customer->phone);
+    strcpy(order.customer->payment_method, cart->customer->payment_method);
+    order.customer->payment_status = cart->customer->payment_status;
+    order.total_price = cart->total_price;
+    order.num_products = cart->num_products;
+    for (int i = 0; i < cart->num_products; i++) {
+        strcpy(order.products[i].productName, cart->products[i].productName);
+        order.products[i].quantity = cart->products[i].quantity;
+        order.products[i].price = cart->products[i].price;
+        order.products[i].code = cart->products[i].code;
+    }
+
+    printf("\nDon hang da duoc tao!\n");
+    printf("Thong tin don hang:\n");
+    display_cart_contents(cart);
+    order_count++;
+}
+
+void addOrder(struct order *orders, struct cart *cart, int *order_count) {
+    if (isPaymentComplete(cart->customer)) {
+        // Tạo một đơn hàng mới từ giỏ hàng
+        struct order new_order;
+        // Gán các giá trị từ giỏ hàng vào đơn hàng mới
+        for (int i = 0; i < cart->num_products; ++i) {
+            new_order.products[i] = cart->products[i];
+        }
+        new_order.num_products = cart->num_products;
+        new_order.total_price = cart->total_price;
+        // Giả sử rằng còn các trường khác trong struct order cần phải được gán
+        
+        // Thêm đơn hàng mới vào mảng orders
+        orders[*order_count] = new_order;
+        (*order_count)++;
+        printf("Don hang da duoc them!\n");
+    }
+    else {
+        printf("Khong the them don hang vi chua thanh toan!\n");
+    }
+}
+
+void cancelOrder(struct order *orders, int *order_count) {
+    if (*order_count == 0) {
+        printf("Khong co don hang de huy!\n");
+        return;
+    }
+
+    printf("Danh sach cac don hang:\n");
+    for (int i = 0; i < *order_count; i++) {
+        printf("%d. Don hang %d\n", i + 1, i + 1);
+    }
+
+    printf("Chon so thu tu cua don hang muon huy: ");
+    int choice;
+    scanf("%d", &choice);
+    if (choice < 1 || choice > *order_count) {
+        printf("Lua chon khong hop le!\n");
+        return;
+    }
+
+    for (int i = choice - 1; i < *order_count - 1; i++) {
+        orders[i] = orders[i + 1];
+    }
+    (*order_count)--;
+    printf("Don hang da duoc huy!\n");
+}
+
+void modifyOrder(struct order *orders, int order_count) {
+    if (order_count == 0) {
+        printf("Khong co don hang de sua!\n");
+        return;
+    }
+
+    printf("Danh sach cac don hang:\n");
+    for (int i = 0; i < order_count; i++) {
+        printf("%d. Don hang %d\n", i + 1, i + 1);
+    }
+
+    printf("Chon so thu tu cua don hang muon sua: ");
+    int choice;
+    scanf("%d", &choice);
+    if (choice < 1 || choice > order_count) {
+        printf("Lua chon khong hop le!\n");
+        return;
+    }
+
+    printf("Sua thong tin cho don hang %d:\n", choice);
+    // Thêm phần sửa thông tin địa chỉ nhận hàng ở đây
+    printf("Sua thong tin thanh cong!\n");
+}
+
+void displayOrder(struct order *orders) {
+    printf("\nDanh sach don hang:\n");
+    for (int i = 0; i < order_count; i++) {
+        printf("Don hang %d\n", i+1);
+        printf("Ten khach hang: %s\n", orders[i].customer->customer_name);
+        printf("Dia chi: %s\n", orders[i].customer->address);
+        printf("So dien thoai: %s\n", orders[i].customer->phone);
+        printf("Phuong thuc thanh toan: %s\n", orders[i].customer->payment_method);
+        printf("Tong gia tri don hang: %.3lf\n", orders[i].total_price);
+        printf("Danh sach san pham:\n");
+        for (int j = 0; j < orders[i].num_products; j++) {
+            printf("\tMa san pham: %d | Ten san pham: %s | So luong: %d | Gia: %.3lf\n", orders[i].products[j].code, orders[i].products[j].productName, orders[i].products[j].quantity, orders[i].products[j].price);
+        }
+        printf("\n");
+    }
+}
+
+
+
 // MAIN WORKING MENU
-void work_with_order(struct product *products, struct cart *cart, struct order *orders, int product_count) {
+void work_with_order(struct product *products, struct cart *cart, struct order *orders, int *product_count) {
 /*
 Đơn mua: thông tin cá nhân, xuất đơn mua
 - bản chất giỏ hàng là một kho lưu tạm dữ liệu đơn hàng trước khi chọn mua
@@ -522,86 +697,104 @@ Khi mình truy cứu một đơn mua thì in ra danh sách gồm có:
 */
 
     // BẮT ĐẦU CODE
-    ExportOrderIntoFile(cart);
+    // ExportOrderIntoFile(cart);
 
     int num, choice1;
     printf("\n=============== MENU ===============\n");
-    printf("1. Them don mua\n");
-    printf("2. Xoa don mua\n");
-    printf("3. Sua don mua\n");
-    printf("4. Quay ve menu truoc do\n");
+    printf("1. Tao don mua");
+    printf("2. Them don mua\n");
+    printf("3. Xoa don mua\n");
+    printf("4. Sua don mua\n");
+    printf("5. Hien thi don mua");
+    printf("6. Thanh toan");
+    printf("7. Quay ve menu truoc do\n");
     printf("\n");
 
-    lua_chon(&choice1);
+    printf("Moi nhap lua chon: ");
+    scanf("%d", &choice1);
+    printf("\n");
 
     do {
         switch (choice1) {
             case 1:
-                display_cart(cart); // In giỏ hàng
-
-                // lấy num xong check qua giỏ hàng
-                printf("Moi nhap so thu tu cua san pham can them trong gio hang: ");
-                scanf("%d", num);
-                printf("\n");
-
-                // thêm product đã check bằng num vào trong container
-            
-            case 2:
-                // chọn product từ trong container
-                printf("Moi nhap so thu tu cua san pham can xoa: ");
-                scanf("%d", num);
-                printf("\n");
-
-                // xóa product
-            
-            case 3:
-                // chọn product từ trong container
-                printf("Moi nhap so thu tu cua san pham can sua: ");
-                scanf("%d", num);
-                printf("\n");
-
-                // chỉnh sửa địa chỉ nhận hàng
-            
-            case 4:
+                createOrder(cart);
                 break;
-
+            case 2:
+                addOrder(orders, cart, &order_count);
+                break;
+            case 3:
+                cancelOrder(orders, &order_count);
+                break;
+            case 4:
+                modifyOrder(orders, order_count);
+                break;
+            case 5:
+                displayOrder(orders);
+                break;
+            case 6:
+                checkout(cart);
+                break;
             default:
                 printf("Invalid choice!\n");
         }
     }
-    while (choice1 != 4);
+    while (choice1 != 5);
 }
 
 void work_with_cart(struct product *products, struct cart *cart, struct order *orders, int product_count) { // Hàm làm việc với giỏ hàng
+    // Khai báo một biến customer_inf để truyền vào hàm create_cart
+    struct customer_inf customer;
+
     int choice;
     do {
         printf("\n============= MENU ==============");
         printf("\n1. Tao moi gio hang");
-        printf("\n2. Them san pham vao gio hang");
-        printf("\n3. Xoa san pham khoi gio hang");
-        printf("\n4. Chinh sua gio hang");
-        printf("\n5. Hoan tat gio hang va bat dau thanh toan");
+        printf("\n2. Thao tac voi gio hang");
+        printf("\n3. Xem gio hang hien tai");
+        printf("\n4. Hoan tat gio hang va bat dau thanh toan");
         printf("\n0. Quay ve menu truoc do\n");
         printf("\nNhap lua chon: ");
         scanf("%d", &choice); getchar();
         switch (choice) {
             case 1:
-                create_cart(cart);
+                fill_customer_inf(&customer);
+                create_cart(cart, &customer, products, product_count);
                 break;
             case 2:
-                add_to_cart(products, cart, product_count);
+                int choice1;
+                do {
+                    printf("\n=========== MENU ============");
+                    printf("\n1. Them san pham vao gio hang");
+                    printf("\n2. Xoa san pham khoi gio hang");
+                    printf("\n3. Chinh sua gio hang");
+                    printf("\n0. Quay ve menu truoc do\n");
+                    printf("\nNhap lua chon: ");
+                    scanf("%d", &choice1); getchar();
+                    switch (choice1) {
+                        case 1:
+                            add_to_cart(products, cart, product_count);
+                            break;
+                        case 2:
+                            delete_from_cart(products, cart, product_count);
+                            break;
+                        case 3:
+                            modify_cart(products, cart, product_count);
+                            break;
+                        case 0:
+                            break;
+                        default:
+                            printf("Lua chon khong hop le!\n");
+                    }
+                } while (choice1 != 0);
                 break;
             case 3:
-                delete_from_cart(products, cart, product_count);
+                displayAllCarts(); // Hiển thị thông tin giỏ hàng
                 break;
             case 4:
-                modify_cart(products, cart, product_count);
-                break;
-            case 5:
-                work_with_order(products, cart, orders, product_count);
+
+                work_with_order(products, cart, orders, &product_count);
                 break;
             case 0:
-                printf("Cam on ban da su dung dich vu!\n");
                 break;
             default:
                 printf("Lua chon khong hop le!\n");
