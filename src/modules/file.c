@@ -23,7 +23,7 @@ struct cart {
 
 // WORK WITH FILE
 void readProductsFromFile(struct product *products, int *product_count) { // Hàm đọc sản phẩm của Trân
-    FILE *file = fopen("products.txt", "r");
+    FILE *file = fopen("../products.txt", "r");
     if (file == NULL) {
         printf("Khong the mo file.\n");
         return;
@@ -37,7 +37,7 @@ void readProductsFromFile(struct product *products, int *product_count) { // Hà
 }
 
 void writeProductsToFile(struct product *products, int product_count) { //Hàm viết sản phẩm của Trân
-    FILE *file = fopen("products.txt", "w");
+    FILE *file = fopen("../products.txt", "w");
     if (file == NULL) {
         printf("Khong the mo file.\n");
         return;
@@ -61,12 +61,12 @@ void deleteFileContents(const char *filename) { //Hàm xóa tất cả dữ li�
 }
 
 void updateProductsFile(struct product *products, int product_count) { //Hàm cập nhật lại số lượng sản phẩm sau khi thêm hoặc bớt sản phẩm
-    deleteFileContents("products.txt");
+    deleteFileContents("../products.txt");
     writeProductsToFile(products, product_count);
 }
 
 void ExportOrderIntoFile(struct cart *cart) {
-    if (isPaymentComplete(*cart) == true) {
+    if (cart->payment_status == 1) {
         FILE *file = fopen("order.txt", "w");
         if (file == NULL) {
             printf("Khong the mo file.\n");
