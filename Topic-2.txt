@@ -1,9 +1,1 @@
-In san pham:
-customer_carts[i].cart.products[j].code,
-customer_carts[i].cart.products[j].productName,
-customer_carts[i].cart.products[j].quantity);
-
-Nhap vao:
-cart->products[cart->num_products] = products[i];
-cart->products[cart->num_products].quantity = quantity;
-cart->total_price += products[i].price * quantity;
+g++ -o main src/main.c src/modules/products.c src/modules/carts.c src/modules/orders.c src/modules/file.c
