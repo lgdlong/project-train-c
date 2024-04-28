@@ -35,7 +35,7 @@ extern struct customer_cart customer_carts[MAX_CUSTOMERS];
 void display_cart_contents(struct cart *cart) {
     printf("\nDanh sach san pham trong gio hang:\n");
     for (int i = 0; i < cart->num_products; i++) {
-        printf("Ma san pham: %d | Ten san pham: %s | So luong: %d\n",  cart->products[i].code, cart->products[i].productName, cart->products[i].quantity);
+        printf("Ma san pham: %d | Ten san pham: %s | So luong: %d | Tong don: %d\n",  cart->products[i].code, cart->products[i].productName, cart->products[i].quantity, cart->total_price);
     }
 }
 
@@ -90,8 +90,9 @@ void create_cart(struct cart *cart, struct customer_inf *customer, struct produc
         
         // Thêm giỏ hàng mới vào mảng customer_carts
         customer_carts[num_customer_carts].customer = cart->customer;
-        customer_carts[num_customer_carts].cart = *cart;
-        printf("\nGio hang da duoc tao cho khach hang %s!\n", customer->customer_name);
+        customer_carts[num_customer_carts].cart.num_products = cart->num_products;
+        customer_carts[num_customer_carts].cart.total_price = cart->total_price;
+        customer_carts[num_customer_carts].cart.payment_status = cart->payment_status;
 
         num_customer_carts++;
     }
