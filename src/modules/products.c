@@ -61,7 +61,7 @@ void addProduct(struct product *products, int *product_count) {
     }
 
     products[*product_count].price = price;
-    products[*product_count].code = *product_count; //Moi them dong nay
+    products[*product_count].code = *product_count + 1; //Moi them dong nay
     (*product_count)++;
 
     writeProductsToFile(products, *product_count);
